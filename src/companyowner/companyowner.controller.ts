@@ -1,45 +1,38 @@
-import { Controller, Get, Param, Post, Body, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Controller, Get, Post, Put, Patch, Delete, Body, Param } from '@nestjs/common';
+import { CompanyOwnerService } from './companyowner.service';
 import { CompanyOwner } from './companyowner.entity';
-import { Form } from '../forms/form.entity';
 
 @Controller('api/companyowners')
 export class CompanyOwnerController {
-    constructor(
-        @InjectRepository(CompanyOwner)
-        private readonly companyOwnerRepository: Repository<CompanyOwner>,
-        @InjectRepository(Form)
-        private readonly formRepository: Repository<Form>,
-    ) {}
-
-    @Get('form/:formId')
-    async getByFormId(@Param('formId') formId: number) {
-        return this.companyOwnerRepository.find({ where: { form: { id: formId } } });
-    }
+    constructor(private readonly companyOwnerService: CompanyOwnerService) {}
 
     @Post()
-    async create(@Body() body: any) {
-        const { document_type, document_number, legal_name, level, parent_id, form_id, file_url, ownership } = body;
+    async create(@Body() companyOwner: CompanyOwner): Promise<CompanyOwner> {
+        return this.companyOwnerService.create(companyOwner);
+    }
 
-        const form = await this.formRepository.findOne(form_id);
-        if (!form) {
-            throw new NotFoundException('Form not found');
-        }
+    @Get()
+    async findAll(): Promise<CompanyOwner[]> {
+        return this.companyOwnerService.findAll();
+    }
 
-        const parent = parent_id ? await this.companyOwnerRepository.findOne(parent_id) : null;
+    @Get(':id')
+    async findOne(@Param('id') id: number): Promise<CompanyOwner> {
+        return this.companyOwnerService.findOne(id);
+    }
 
-        const companyOwner = this.companyOwnerRepository.create({
-            document_type,
-            document_number,
-            legal_name,
-            level,
-            parent,
-            form,
-            file_url,
-            ownership
-        });
+    @Put(':id')
+    async update(@Param('id') id: number, @Body() updateData: Partial<CompanyOwner>): Promise<CompanyOwner> {
+        return this.companyOwnerService.update(id, updateData);
+    }
 
-        return this.companyOwnerRepository.save(companyOwner);
+    @Patch(':id')
+    async partialUpdate(@Param('id') id: number, @Body() updateData: Partial<CompanyOwner>): Promise<CompanyOwner> {
+        return this.companyOwnerService.update(id, updateData);
+    }
+
+    @Delete(':id')
+    async remove(@Param('id') id: number): Promise<void> {
+        return this.companyOwnerService.remove(id);
     }
 }

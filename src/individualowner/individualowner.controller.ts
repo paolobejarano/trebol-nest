@@ -1,49 +1,41 @@
 // src/individualowner/individualowner.controller.ts
-import { Controller, Get, Param, Post, Body, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Controller, Get, Param, Post, Put, Patch, Delete, Body, Query, NotFoundException } from '@nestjs/common';
+import { IndividualOwnerService } from './individualowner.service';
 import { IndividualOwner } from './individualowner.entity';
-import { Form } from '../forms/form.entity';
+
 
 @Controller('api/individualowners')
 export class IndividualOwnerController {
-    constructor(
-        @InjectRepository(IndividualOwner)
-        private readonly individualOwnerRepository: Repository<IndividualOwner>,
-        @InjectRepository(Form)
-        private readonly formRepository: Repository<Form>,
-    ) {}
+    constructor(private readonly individualOwnerService: IndividualOwnerService) {}
 
-    @Get('form/:formId')
-    async getByFormId(@Param('formId') formId: number) {
-        return this.individualOwnerRepository.find({ where: { form: { id: formId } } });
+    // GET /api/individualowners
+    @Get()
+    async findAll(
+      @Query('level') level?: number,
+      @Query('form_id') formId?: number,
+    ): Promise<IndividualOwner[]> {
+        return this.individualOwnerService.findAll(level, formId);
     }
 
+    // GET /api/individualowners/:id
     @Post()
-    async create(@Body() body: any) {
-        const { document_type, document_id, first_name, last_name, level, parent_id, form_id, file_url, ownership } = body;
+    async create(@Body() individualOwner: IndividualOwner): Promise<IndividualOwner> {
+        return this.individualOwnerService.create(individualOwner);
+    }
 
-        const form = await this.formRepository.findOne(form_id);
-        if (!form) {
-            throw new NotFoundException('Form not found');
-        }
+    // GET /api/individualowners/:id
+    @Put(':id')
+    async update(@Param('id') id: number, @Body() updateData: Partial<IndividualOwner>): Promise<IndividualOwner> {
+        return this.individualOwnerService.update(id, updateData);
+    }
 
-        console.log(form)
+    @Patch(':id')
+    async partialUpdate(@Param('id') id: number, @Body() updateData: Partial<IndividualOwner>): Promise<IndividualOwner> {
+        return this.individualOwnerService.update(id, updateData);
+    }
 
-        const parent = null;
-
-        const individualOwner = this.individualOwnerRepository.create({
-            document_type,
-            document_id,
-            first_name,
-            last_name,
-            level,
-            parent,
-            form,
-            file_url,
-            ownership
-        });
-
-        return this.individualOwnerRepository.save(individualOwner);
+    @Delete(':id')
+    async remove(@Param('id') id: number): Promise<void> {
+        return this.individualOwnerService.remove(id);
     }
 }

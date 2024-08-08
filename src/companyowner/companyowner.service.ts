@@ -6,30 +6,34 @@ import { CompanyOwner } from './companyowner.entity';
 @Injectable()
 export class CompanyOwnerService {
     constructor(
-        @InjectRepository(CompanyOwner)
-        private readonly companyOwnerRepository: Repository<CompanyOwner>,
+      @InjectRepository(CompanyOwner)
+      private companyOwnerRepository: Repository<CompanyOwner>,
     ) {}
-
-    async findAll(): Promise<CompanyOwner[]> {
-        return this.companyOwnerRepository.find();
-    }
 
     async create(companyOwner: CompanyOwner): Promise<CompanyOwner> {
         return this.companyOwnerRepository.save(companyOwner);
     }
 
-    async update(id: number, updateData: Partial<CompanyOwner>): Promise<CompanyOwner> {
-        await this.companyOwnerRepository.update(id, updateData);
-        const updatedOwner = await this.companyOwnerRepository.findOne({ where: { id } });
-        if (!updatedOwner) {
+    async findAll(): Promise<CompanyOwner[]> {
+        return this.companyOwnerRepository.find();
+    }
+
+    async findOne(id: number): Promise<CompanyOwner> {
+        const companyOwner = await this.companyOwnerRepository.findOne({ where: { id } });
+        if (!companyOwner) {
             throw new NotFoundException(`CompanyOwner with ID ${id} not found`);
         }
-        return updatedOwner;
+        return companyOwner;
+    }
+
+    async update(id: number, updateData: Partial<CompanyOwner>): Promise<CompanyOwner> {
+        await this.companyOwnerRepository.update(id, updateData);
+        return this.findOne(id);
     }
 
     async remove(id: number): Promise<void> {
-        const deleteResult = await this.companyOwnerRepository.delete(id);
-        if (!deleteResult.affected) {
+        const result = await this.companyOwnerRepository.delete(id);
+        if (result.affected === 0) {
             throw new NotFoundException(`CompanyOwner with ID ${id} not found`);
         }
     }
