@@ -35,4 +35,9 @@ export class IndividualOwner {
 
     @Column('decimal', { precision: 5, scale: 4 })
     ownership: number;
+
+    // Computado: de cuanto es dueño el indivudo en el nivel que esté
+    // Solo endpoint GET
+    // forms/1/individualowners?computado=1
+
 }

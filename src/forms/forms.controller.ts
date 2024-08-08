@@ -1,4 +1,4 @@
-import { Controller, Post, Body, NotFoundException } from '@nestjs/common';
+import { Controller, Post, Delete, Body, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Form } from './form.entity';
@@ -32,5 +32,11 @@ export class FormsController {
         const createdForm = await this.formRepository.save(form);
 
         return createdForm;
+    }
+
+    @Delete('deleteAll')
+    async deleteAllForms() {
+        await this.formRepository.query('DELETE FROM form');
+        return { message: 'All forms have been deleted' };
     }
 }

@@ -28,7 +28,9 @@ export class IndividualOwnerController {
             throw new NotFoundException('Form not found');
         }
 
-        const parent = parent_id ? await this.individualOwnerRepository.findOne(parent_id) : null;
+        console.log(form)
+
+        const parent = null;
 
         const individualOwner = this.individualOwnerRepository.create({
             document_type,
