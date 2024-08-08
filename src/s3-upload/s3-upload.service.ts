@@ -5,7 +5,7 @@ import { createPresignedPost, PresignedPostOptions } from '@aws-sdk/s3-presigned
 @Injectable()
 export class S3UploadService {
     async generatePresignedPost(fileName: string, fileType: string) {
-        const bucketName = 'static.kurios.la'; // Replace with your S3 bucket name
+        const bucketName = 'BUCKET-NAME'; // Replace with your S3 bucket name
 
         const params: PresignedPostOptions = {
             Bucket: bucketName,
